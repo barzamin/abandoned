@@ -1,10 +1,10 @@
 #![feature(proc_macro_hygiene)]
 
 use maud::{html, Render, DOCTYPE};
-use osmpbfreader::{OsmObj, OsmId, Node};
+use osmpbfreader::{Node, OsmId, OsmObj};
+use ron::ser::PrettyConfig;
 use std::fs::File;
 use std::io::Write;
-use ron::ser::PrettyConfig;
 use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
@@ -22,8 +22,11 @@ fn osm_viewer_url(obj: &OsmObj) -> String {
 }
 
 fn gmaps_url(node: &Node) -> String {
-    format!("https://www.google.com/maps/place/{},{}", node.lat(), node.lon())
-
+    format!(
+        "https://www.google.com/maps/place/{},{}",
+        node.lat(),
+        node.lon()
+    )
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -59,9 +62,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         "]"
                     }
                     a href=(osm_viewer_url(&obj)) {"view in OSM"}
-                    @if let OsmObj::Node(node) = obj {
-                        a href=(gmaps_url(node)) {"view in gmaps"}
-                    }
+                    // @match obj {
+                    //     OsmObj::Node(node) => {a href=(gmaps_url(node)) {"view in gmaps"}}
+                    //     Way::Node()
+                    // }
                     dl {
                         @for (k, v) in obj.tags().iter() {
                             dt { (k) }
